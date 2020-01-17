@@ -5,7 +5,9 @@
 
     <h1 class="centralizado">{{ this.user.name }}</h1>
 
-    <router-link :to="{ name: 'login' }"><button>Voltar</button></router-link>
+    <div class="logout">
+      <router-link :to="{ name: 'login' }"><button>Voltar</button></router-link>
+    </div>
 
     <div class="centralizado upload">
       
@@ -34,9 +36,10 @@
       </form>
     </div>
 
+    <input v-if="documentos != ''" type="search" class="filtro" @input="filtro = $event.target.value" placeholder="Perquisar por categoria">
 
     <div class="upload" v-if="documentos != ''" >
-      <div class="listagemDoc" v-for="(documento, i) of documentos" :key='i' id="listagem" >
+      <div class="listagemDoc" v-for="(documento, i) of documentosFiltro()" :key='i' id="listagem" >
         <ul>
           <h2>{{ documento.name }}</h2>
           <br>
@@ -66,8 +69,7 @@ export default {
       contemArquivo: true,
       mensagemAviso: "",
       documentos: [],
-      currentPage: 1,
-      perPage: 5,
+      filtro: '',
     };
   },
 
@@ -94,6 +96,7 @@ export default {
         .then(()=> {
           this.mensagemAviso = "Enviado com sucesso!"
           this.uploadPercentage = 0;
+          this.document.name = '';
           document.getElementById("files").value = "";
           this.listDocuments();
         })
@@ -134,7 +137,17 @@ export default {
         });
       }  
 
-    }
+    },
+
+    documentosFiltro(){
+
+      if(this.filtro){
+        let exp = new RegExp(this.filtro.trim(), 'i');
+        return this.documentos.filter(documento => exp.test(documento.name));
+      }else{
+        return this.documentos;
+      }
+    },
   },
 
   mounted() {
@@ -158,13 +171,7 @@ export default {
         self.mensagemAviso = '';
       }, 1000);
     }
-  },
-
-  computed: {
-      rows() {
-        return this.documentos.length;
-      }
-    }
+  }
 
 };
 </script>
@@ -189,7 +196,7 @@ export default {
     padding-top: 40px;
   }
 
-  .paginacao{
+  .logout{
     margin: auto;
     width: 50%;
     display: flex;
@@ -218,8 +225,17 @@ export default {
 
   a:hover{
     text-decoration: none;
-    color: black
+    color: darkblue;
   }
 
+  .filtro{
+    display: block;
+    margin: auto;
+    margin-top: 20px;
+    padding: 10px;
+    width: 50%;
+    border-radius: 20px;
+    outline: none;
+  }
 
 </style>
